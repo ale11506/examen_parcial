@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Compras</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    h2 {
+        color: #007bff; 
+        text-align: center;
+    }
+    form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin-bottom: 20px;
+    }
+    form label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+    }
+    form input[type="text"],
+    form input[type="number"] {
+        width: calc(100% - 20px);
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    form button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    form button:hover {
+        background-color: #0056b3; 
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .checked {
+        text-decoration: line-through;
+        color: #999;
+    }
+</style>
+</head>
+<body>
+    <h2>Lista de Compras</h2>
+    <form id="formularioAgregar">
+        <label for="nombreProducto">Producto:</label>
+        <input type="text" id="nombreProducto" required>
+        <label for="precioProducto">Precio Aproximado:</label>
+        <input type="number" id="precioProducto" required>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <table id="listaCompras">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio Aproximado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        const formulario = document.getElementById('formularioAgregar');
+        const listaProductos = document.getElementById('listaCompras').getElementsByTagName('tbody')[0];
+
+        formulario.addEventListener('submit', function(evento) {
+            evento.preventDefault();
+            
+            const nombreProducto = document.getElementById('nombreProducto').value;
+            const precioProducto = parseFloat(document.getElementById('precioProducto').value);
+
+            if (nombreProducto.trim() === '' || isNaN(precioProducto)) {
+                alert('Por favor ingrese un nombre y un precio válido.');
+                return;
+            }
+
+            agregarProductoLista(nombreProducto, precioProducto);
+            formulario.reset();
+        });
+
+        function agregarProductoLista(nombre, precio) {
+            const fila = listaProductos.insertRow();
+            const celdaNombreProducto = fila.insertCell(0);
+            const celdaPrecioProducto = fila.insertCell(1);
+            const celdaAcciones = fila.insertCell(2);
+
+            celdaNombreProducto.textContent = nombre;
+            celdaPrecioProducto.textContent = `Q${precio.toFixed(2)}`;
+            celdaAcciones.innerHTML = `
+                <button onclick="alternarComprado(this)">Comprado</button>
+            `;
+        }
+
+        function alternarComprado(boton) {
+            const fila = boton.parentElement.parentElement;
+            const celdaNombreProducto = fila.cells[0];
+            const celdaPrecioProducto = fila.cells[1];
+
+            if (celdaNombreProducto.classList.contains('checked')) {
+                celdaNombreProducto.classList.remove('checked');
+                celdaPrecioProducto.classList.remove('checked');
+                boton.textContent = 'Comprado';
+            } else {
+                celdaNombreProducto.classList.add('checked');
+                celdaPrecioProducto.classList.add('checked');
+                boton.textContent = 'Deshacer';
+            }
+
+            calcularTotal();
+        }
+
+        function calcularTotal() {
+            let total = 0;
+            const filas = listaProductos.rows;
+
+            for (let i = 0; i < filas.length; i++) {
+                const celdaPrecioProducto = filas[i].cells[1];
+                if (!celdaPrecioProducto.classList.contains('checked')) {
+                    total += parseFloat(celdaPrecioProducto.textContent.replace('Q', ''));
+                }
+            }
+
+            alert(`Total aproximado a pagar: Q${total.toFixed(2)}`);
+        }
+    </script>
+</body>
+</html>
